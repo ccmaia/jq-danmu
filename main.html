@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>JQ实现弹幕效果</title>
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #box {
+            height: 700px;
+            width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #main {
+            width: 100%;
+            height: 605px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        p {
+            position: absolute;
+            left: 1000px;
+            width: 200px;
+            top: 0;
+        }
+
+        #bottom {
+            width: 100%;
+            height: 80px;
+            background: #ABCDEF;
+            text-align: center;
+            padding-top: 15px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+        }
+
+        #txt {
+            width: 300px;
+            height: 50px;
+        }
+
+        #btn {
+            width: 100px;
+            height: 50px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="dist/css/zzsc-demo.css">
+    <link rel="stylesheet" type="text/css" href="dist/css/barrager.css">
+</head>
+
+<body>
+    <div id="box">
+        <div id="main">
+
+        </div>
+        <div id="bottom">
+            <input type="text" id="txt" placeholder="请输入内容" />
+            <input type="button" id="btn" value="发射" />
+        </div>
+    </div>
+    <script src="http://libs.baidu.com/jquery/1.9.1/jquery.js"></script>
+    <script type="text/javascript" src="dist/js/jquery.barrager.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var pageH = parseInt($("#main").height()) - 80;
+            console.log(pageH)
+            var colorArr = ["#cfaf12", "#12af01", "#981234", "#adefsa", "#db6be4", "#f5264c", "#d34a74"];
+            $("#btn").bind("click", auto);
+            document.onkeydown = function (e) {
+                if (e.keyCode == 13) {
+                    fasong();
+                }
+            };
+
+
+            var strArr = [{
+                val: '今天天气真好！！',
+                img: 'cute'
+            }, {
+                val: '我勒个去',
+                img: 'heisenberg'
+            }, {
+                val: '哈哈',
+                img: 'heisenberg'
+            }, {
+                val: '下雨了',
+                img: 'cute'
+            }, {
+                val: '今天天气真好！',
+                img: 'heisenberg'
+            }, {
+                val: '天下无贼',
+                img: 'cute'
+            }, {
+                val: 'bangbang',
+                img: 'heisenberg'
+            }, {
+                val: '你好',
+                img: 'cute'
+            },]
+            var thisNum = 0;
+            var lastTop = 0;
+            autotest(strArr[thisNum]);
+            var time = null;
+            time = setInterval(function () {
+                if (thisNum + 1 == strArr.length) {
+                    thisNum = -1;
+                }
+                thisNum++;
+                autotest(strArr[thisNum]);
+            }, 2500);
+            // 判断页面是否被浏览
+            var hiddenProperty = 'hidden' in document ? 'hidden' : 'webkitHidden' in document ? 'webkitHidden' : 'mozHidden' in document ? 'mozHidden' : null;
+            console.log(hiddenProperty)
+            var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
+            var onVisibilityChange = function () {
+                if (!document[hiddenProperty]) {
+                    document.title = '弹幕开始';
+                    time = setInterval(function () {
+                        if (thisNum + 1 == strArr.length) {
+                            thisNum = -1;
+                        }
+                        thisNum++;
+                        autotest(strArr[thisNum]);
+                    }, 2500);
+                } else {
+                    document.title = '弹幕停止啦 ';
+                    clearInterval(time);
+                }
+            }
+            document.addEventListener(visibilityChangeEvent, onVisibilityChange);
+
+            function autotest(data) {
+                var item = {
+                    img: 'dist/img/' + data.img + '.png', //图片 
+                    info: data.val, //文字 
+                    href: 'http://school.zhinanche.com', //链接 
+                    close: true, //显示关闭按钮 
+                    speed: 6, //延迟,单位秒,默认6 
+                    top: 100, //距离底部高度,单位px,默认随机 
+                    color: '#fff', //颜色,默认白色 
+                    old_ie_color: '#000000', //ie低版兼容色,不能与网页背景相同,默认黑色 
+                }
+                $("#main").barrager(item);
+            };
+
+            function fasong() {
+                var data = $("#txt").val();
+                $("#txt").val("");
+                var item = {
+                    img: 'dist/img/heisenberg.png', //图片 
+                    info: data, //文字 
+                    href: 'http://school.zhinanche.com', //链接 
+                    close: true, //显示关闭按钮 
+                    speed: 6, //延迟,单位秒,默认6 
+                    top: 100, //距离底部高度,单位px,默认随机 
+                    color: '#fff', //颜色,默认白色 
+                    old_ie_color: '#000000', //ie低版兼容色,不能与网页背景相同,默认黑色 
+                }
+                $('body').barrager(item);
+            }
+
+
+            function auto() {
+                var $value = $("#txt").val();
+                $("#main").append("<p>" + $value + "</p>");
+                $("#txt").val("");
+                var _top = parseInt(pageH * (Math.random()));
+                var num = parseInt(colorArr.length * (Math.random()));
+                $("p:last-child").css({ "top": _top, "color": colorArr[num], "font-size": "20px" });
+                $("p:last-child").animate({ "left": "-200px" }, 10000);
+                $("p:last-child").stop().animate({ "left": "-300px" }, 10000, "linear", function () {
+                    $(this).remove();
+                });
+                //console.log($value);
+            };
+
+        })
+    </script>
+</body>
+
+</html>
